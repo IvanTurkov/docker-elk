@@ -9,6 +9,7 @@ services:
         ELK_VERSION: $ELK_VERSION
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/data:/usr/share/elasticsearch/data:rw
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -50,6 +51,23 @@ services:
     depends_on:
       - elasticsearch
 
+  nginx:
+    container_name: nginx_elk
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/config:/etc/nginx/conf.d
+      - ./nginx/log:/var/log/nginx
+    volumes_from:
+      - elasticsearch
+      - logstash
+      - kibana
+    depends_on:
+      - elasticsearch
+      - logstash
+      - kibana
 networks:
 
   elk:
